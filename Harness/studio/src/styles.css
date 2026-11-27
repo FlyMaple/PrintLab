@@ -33,3 +33,11 @@
 .favorites-page .filter-tabs{flex-wrap:wrap}.favorites-page .filter-tabs button{font-size:16px;min-height:48px}.favorites-page .search-box{min-height:48px}.favorites-page .search-box input{font-size:16px}
 @media(max-width:1200px){.favorites-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:640px){.favorites-grid{grid-template-columns:1fr}.favorite-cover{height:280px}.favorite-copy{padding:24px}.favorites-page .page-heading p{font-size:16px}.favorites-page .collection-toolbar{gap:16px}.favorites-page .page-heading{gap:16px}.favorites-page .search-box{max-width:none}}
+
+/* Fullscreen 3D ModelViewer overlay */
+.model-actions{position:absolute;bottom:10px;right:16px;display:flex;align-items:center;gap:8px;z-index:2}
+.model-action-btn{background:var(--panel);border:1px solid var(--line);box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.model-viewer.model-fullscreen{position:fixed!important;inset:0!important;width:100vw!important;height:100dvh!important;z-index:9999!important;background:var(--stage);border-radius:0!important}
+.model-viewer.model-fullscreen .model-actions{bottom:20px;right:24px}
+.model-viewer.model-fullscreen .model-hint{bottom:26px;left:24px;font-size:12px}
+.model-fullscreen-title{position:absolute;top:20px;left:24px;padding:8px 14px;border-radius:8px;background:color-mix(in srgb,var(--panel) 88%,transparent);border:1px solid var(--line);font-size:14px;font-weight:550;backdrop-filter:blur(8px);z-index:2;pointer-events:none}

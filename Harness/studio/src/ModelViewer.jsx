@@ -2,10 +2,18 @@ import React, {useEffect, useRef, useState} from 'react';
 import * as THREE from 'three';
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
 import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
-import {RotateCcw, Move, Box, LoaderCircle} from 'lucide-react';
+import {RotateCcw, Move, Box, LoaderCircle, Maximize2, Minimize2} from 'lucide-react';
 
 export default function ModelViewer({url,cover,name,interactive=true}){
- const host=useRef(null),reset=useRef(null);const [state,setState]=useState('loading');
+ const host=useRef(null),reset=useRef(null);const [state,setState]=useState('loading');const [expanded,setExpanded]=useState(false);
+ useEffect(()=>{
+  if(!expanded)return;
+  const prevOverflow=document.body.style.overflow;
+  document.body.style.overflow='hidden';
+  const onKey=e=>{if(e.key==='Escape')setExpanded(false)};
+  window.addEventListener('keydown',onKey);
+  return()=>{document.body.style.overflow=prevOverflow;window.removeEventListener('keydown',onKey)};
+ },[expanded]);
  useEffect(()=>{
   if(!url){setState('empty');return;}
   const el=host.current;if(!el)return;let renderer,scene,camera,controls,frame,disposed=false;const objects=[];setState('loading');
@@ -25,11 +33,12 @@ export default function ModelViewer({url,cover,name,interactive=true}){
    return()=>{disposed=true;cancelAnimationFrame(frame);observer.disconnect();renderer.domElement.removeEventListener('keydown',keyboard);controls.removeEventListener('change',renderHidden);controls.dispose();objects.forEach(obj=>obj.traverse(o=>{o.geometry?.dispose();if(o.material)(Array.isArray(o.material)?o.material:[o.material]).forEach(m=>{Object.values(m).forEach(v=>v?.isTexture&&v.dispose());m.dispose()})}));renderer.dispose();renderer.domElement.remove();reset.current=null;};
   }catch{setState('error');renderer?.dispose();}
  },[url,interactive,name]);
- return <div className={`model-viewer model-${state}`}>
+ return <div className={`model-viewer model-${state}${expanded?' model-fullscreen':''}`}>
    <div ref={host} className="model-canvas"/>
+   {expanded&&<div className="model-fullscreen-title">{name}</div>}
    {(state==='empty'||state==='error')&&(cover?<img className="model-fallback" src={cover} alt={`${name} 模型预览`}/>:<div className="model-empty"><Box size={48} strokeWidth={1}/><span>{state==='error'?'三维预览暂不可用':'模型预览待生成'}</span></div>)}
    {state==='loading'&&<div className="model-loading"><LoaderCircle className="spin" size={22}/><span>载入模型</span></div>}
-   {state==='ready'&&interactive&&<><div className="model-hint"><Move size={14}/> 拖动旋转 · 滚动缩放</div><button className="icon-button model-reset" onClick={()=>reset.current?.()} aria-label="重置模型视角" title="重置视角"><RotateCcw size={17}/></button></>}
+   {state==='ready'&&interactive&&<><div className="model-hint"><Move size={14}/> {expanded?'拖动旋转 · 滚动缩放 · Esc 退出全屏':'拖动旋转 · 滚动缩放'}</div><div className="model-actions"><button className="icon-button model-action-btn" onClick={()=>reset.current?.()} aria-label="重置模型视角" title="重置视角"><RotateCcw size={17}/></button><button className="icon-button model-action-btn" onClick={()=>setExpanded(v=>!v)} aria-label={expanded?'退出全屏':'全屏预览'} title={expanded?'退出全屏 (Esc)':'全屏预览'}>{expanded?<Minimize2 size={17}/>:<Maximize2 size={17}/>}</button></div></>}
    {state==='error'&&cover&&<span className="model-hint">静态预览 · 三维模型加载失败</span>}
  </div>
 }
